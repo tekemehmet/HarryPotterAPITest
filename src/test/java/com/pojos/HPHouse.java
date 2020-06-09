@@ -40,11 +40,25 @@ public class HPHouse {
     private String houseGhost;
     private String founder;
     @SerializedName("__v")
-    private String v;
+    private Integer v;
     private String school;
     private List<HPMember> members;
     private List<String> values;
     private List<String> colors;
+
+    public HPHouse(String id, String name, String mascot, String headOfHouse, String houseGhost, String founder, Integer v, String school, List<HPMember> members, List<String> values, List<String> colors) {
+        this.id = id;
+        this.name = name;
+        this.mascot = mascot;
+        this.headOfHouse = headOfHouse;
+        this.houseGhost = houseGhost;
+        this.founder = founder;
+        this.v = v;
+        this.school = school;
+        this.members = members;
+        this.values = values;
+        this.colors = colors;
+    }
 
     public String getId() {
         return id;
@@ -94,11 +108,11 @@ public class HPHouse {
         this.founder = founder;
     }
 
-    public String getV() {
+    public Integer getV() {
         return v;
     }
 
-    public void setV(String v) {
+    public void setV(Integer v) {
         this.v = v;
     }
 

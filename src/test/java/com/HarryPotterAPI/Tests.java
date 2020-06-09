@@ -1,7 +1,10 @@
 package com.HarryPotterAPI;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+import com.pojos.HPCharacter;
+import io.restassured.config.ObjectMapperConfig;
 import io.restassured.http.ContentType;
+import io.restassured.mapper.ObjectMapperType;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -9,7 +12,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import static org.hamcrest.Matchers.*;
 
-import java.awt.datatransfer.StringSelection;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +30,7 @@ public class Tests {
     public static void setup(){
 
         baseURI = "https://www.potterapi.com/v1/";
+        config = config().objectMapperConfig(new ObjectMapperConfig(ObjectMapperType.GSON));
     }
 
     /*
@@ -76,11 +80,11 @@ public class Tests {
                                     queryParam("key",BAD_API_KEY).
                             when().get("/characters").prettyPeek();
 
-        String actual = response.jsonPath().getString("error");
-        Assertions.assertEquals("API Key Not Found" , actual );
-
-        Assertions.assertEquals(401, response.statusCode());
-        Assertions.assertEquals("application/json; charset=utf-8",response.contentType());
+        response.then().assertThat().
+                statusCode(401).
+                contentType("application/json; charset=utf-8").
+                statusLine(containsString("Unauthorized")).
+                body("error", is("API Key Not Found"));
 
     }
 
@@ -129,8 +133,13 @@ public class Tests {
 
         List<Object> ids = response.jsonPath().get("_id");
         System.out.println(ids.size());
-
         Assertions.assertEquals(195, ids.size() );
+
+        //with POJO class
+        List<Object> characterList = response.jsonPath().getList("");
+
+        Assertions.assertTrue(characterList.size()==195);
+
 
     }
 
@@ -163,6 +172,7 @@ public class Tests {
                                     body("_id",everyItem(not(isEmptyString()))).
                                     body("dumbledoresArmy", everyItem(is(instanceOf(Boolean.class)))).
                                     body("house", everyItem(is(oneOf("Gryffindor", "Slytherin", "Hufflepuff", "Ravenclaw",null))));
+
 
         }
 
@@ -284,7 +294,22 @@ public class Tests {
                                     assertThat().contentType("application/json; charset=utf-8");
 
         String gryffindorID = response.jsonPath().getString("find{it.name=='Gryffindor'}_id");
-        System.out.println("gryffindorID = " + gryffindorID);
+
+        List<String> memberIDs = response.jsonPath().getList("find{it.name == 'Gryffindor'}.members");
+        System.out.println("Gryffindor memeberIDs = " + memberIDs);
+
+        Response response2 = given().
+                                header("Accept", "application/json").
+                                queryParam("key", API_KEY).
+                                pathParam("id", gryffindorID).
+                    when().
+                            get("/houses/{id}").prettyPeek();
+
+        List<String> memberIDsFrom2ndResponse = response2.jsonPath().getList("[0].members._id");
+        System.out.println("memberIDsFrom2ndResponse = " + memberIDsFrom2ndResponse);
+
+        Assertions.assertEquals(memberIDs, memberIDsFrom2ndResponse);
+
     }
 
 

@@ -29,7 +29,7 @@ public class HPCharacter {
     private String house;
     private String school;
     @SerializedName("__v")
-    private String v;
+    private Integer v;
     private String ministryOfMagic;
     private String orderOfThePhoenix;
     private String dumbledoresArmy;
@@ -40,7 +40,7 @@ public class HPCharacter {
     public HPCharacter() {
     }
 
-    public HPCharacter(String id, String name, String role, String house, String school, String v, String ministryOfMagic, String orderOfThePhoenix, String dumbledoresArmy, String deathEater, String bloodStatus, String species) {
+    public HPCharacter(String id, String name, String role, String house, String school, Integer v, String ministryOfMagic, String orderOfThePhoenix, String dumbledoresArmy, String deathEater, String bloodStatus, String species) {
         this.id = id;
         this.name = name;
         this.role = role;
@@ -95,11 +95,11 @@ public class HPCharacter {
         this.school = school;
     }
 
-    public String getV() {
+    public Integer getV() {
         return v;
     }
 
-    public void setV(String v) {
+    public void setV(Integer v) {
         this.v = v;
     }
 
