@@ -1,10 +1,11 @@
 package com.pojos;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.gson.annotations.SerializedName;
 import groovyjarjarantlr4.v4.codegen.model.SrcOp;
 
 import java.lang.ref.SoftReference;
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class HPCharacter {
     /*
     {

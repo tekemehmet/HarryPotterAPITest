@@ -1,6 +1,8 @@
 package com.HarryPotterAPI;
 
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.google.gson.annotations.SerializedName;
 import com.pojos.HPCharacter;
 import io.restassured.config.ObjectMapperConfig;
 import io.restassured.http.ContentType;
@@ -136,7 +138,8 @@ public class Tests {
         Assertions.assertEquals(195, ids.size() );
 
         //with POJO class
-        List<Object> characterList = response.jsonPath().getList("");
+        List<HPCharacter> characterList = response.jsonPath().getList("",HPCharacter.class);
+        System.out.println("characterList = " + characterList);
 
         Assertions.assertTrue(characterList.size()==195);
 
@@ -174,7 +177,8 @@ public class Tests {
                                     body("house", everyItem(is(oneOf("Gryffindor", "Slytherin", "Hufflepuff", "Ravenclaw",null))));
 
 
-        }
+
+    }
 
         /*
         Verify all character information
@@ -309,6 +313,66 @@ public class Tests {
         System.out.println("memberIDsFrom2ndResponse = " + memberIDsFrom2ndResponse);
 
         Assertions.assertEquals(memberIDs, memberIDsFrom2ndResponse);
+
+    }
+
+    /*
+        Verify house members again
+    1. Send a get request to /houses/:id. Request includes :
+    • Header Accept with value application/json
+    • Query param key with value {{apiKey}}
+    • Path param id with value 5a05e2b252f721a3cf2ea33f
+    2. Capture the ids of all members
+    3. Send a get request to /characters. Request includes :
+    • Header Accept with value application/json
+    • Query param key with value {{apiKey}}
+    • Query param house with value Gryffindor
+    4. Verify that response contains the same member ids from step 2
+     */
+    @Test
+    @SerializedName("Verify house members again")
+    public void houseMember(){
+        Response response = given().
+                header("Accept", "application/json").
+                queryParam("key", API_KEY).
+                pathParam("id","5a05e2b252f721a3cf2ea33f").
+                when().
+                get("/houses/{id}").prettyPeek();
+
+        List<String> memberIDs = response.jsonPath().getList("[0].members._id");
+
+        Response response2 = given().
+                header("Accept", "application/json").
+                queryParam("key", API_KEY).
+                queryParam("house","Gryffindor").
+                when().
+                    get("/characters").prettyPeek();
+
+        List<String> characterIDs = response.jsonPath().getList("findAll{it.house =='Gryffindor'}._id");
+
+        Assertions.assertEquals(memberIDs , characterIDs);
+
+    }
+
+    /*
+        Verify house with most members
+    1. Send a get request to /houses. Request includes :
+    • Header Accept with value application/json
+    • Query param key with value {{apiKey}}
+    2. Verify status code 200, content type application/json; charset=utf-8
+    3. Verify that Gryffindor house has the most members
+     */
+    @Test
+    @DisplayName("Verify house with most members")
+    public void verifyHouseWithMostMembers(){
+
+        Response response = given().
+                header("Accept", "application/json").
+                queryParam("key", API_KEY).
+                pathParam("name" ,"Gryffindor").
+                when().
+                get("/houses/{name}").prettyPeek();
+
 
     }
 
