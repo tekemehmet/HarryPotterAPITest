@@ -211,6 +211,7 @@ public class Tests {
                             assertThat().body("[0].name",is(anyName));
 
         }
+
         /*
         Verify name search
         Send a get request to /characters. Request includes :
@@ -253,6 +254,37 @@ public class Tests {
                     then().statusCode(200).assertThat().contentType("application/json; charset=utf-8").
                     assertThat().body("[0].name",is(isEmptyOrNullString()));
 
+    }
+
+    /*
+        Verify house members
+    1. Send a get request to /houses. Request includes :
+    • Header Accept with value application/json
+    • Query param key with value {{apiKey}}
+    2. Verify status code 200, content type application/json; charset=utf-8
+    3. Capture the id of the Gryffindor house
+    4. Capture the ids of the all members of the Gryffindor house
+    5. Send a get request to /houses/:id. Request includes :
+    • Header Accept with value application/json
+    • Query param key with value {{apiKey}}
+    • Path param id with value from step 3
+    6. Verify that response contains the same member ids as the step 4
+     */
+    @Test
+    @DisplayName("Verify house members")
+    public void verifyHouseMembers(){
+        Response response = given().
+                                header("Accept", "application/json").
+                                queryParam("key", API_KEY).
+                            when().
+                                    get("/houses").prettyPeek();
+
+        response.then().assertThat().
+                                    statusCode(200).
+                                    assertThat().contentType("application/json; charset=utf-8");
+
+        String gryffindorID = response.jsonPath().getString("find{it.name=='Gryffindor'}_id");
+        System.out.println("gryffindorID = " + gryffindorID);
     }
 
 
